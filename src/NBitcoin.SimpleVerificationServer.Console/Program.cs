@@ -10,21 +10,14 @@ namespace NBitcoin.SimpleVerificationServer.Host
     {
         public static void Main(string[] args)
         {
+            // TODO: Probably should be a way for this to specify where the settings come from,
+            // e.g. console app would add command line, etc.
             using (var shell = new Shell())
             {
                 shell.Start();
                 Console.WriteLine("Press Enter to stop");
                 Console.ReadLine();
             }
-
-
-            ////Logs.Configure(new FuncLoggerFactory(n => new ConsoleLogger(n, (a, b) => true, false)));
-            ////NodeArgs nodeArgs = NodeArgs.GetArgs(args);
-
-            //// Console thread
-
-            //server.Start();
-            //server.Dispose();
         }
     }
 }

@@ -44,19 +44,21 @@ namespace NBitcoin.SimpleVerificationServer
             _logger.LogInformation(1000, "Logging configured");
 
             // Build webhost first, as ASP.NET wants to create service provider & logger
-            WebHost = BuildWebHostAndServiceProvider(Configuration, LoggerFactory, services => ConfigureServices(services));
+            WebHost = BuildWebHostAndServiceProvider(Configuration, LoggerFactory, 
+                services => ConfigureServices(services));
             Services = WebHost.Services;
 
-            // Build other components
             Node = BuildNode(Services);
 
             _logger.LogDebug("Starting components");
             Node.Start();
             WebHost.Start();
+            _isRunning = true;
         }
 
         public void Stop()
         {
+            _isRunning = false;
             _logger.LogDebug("Stopping");
         }
 
@@ -65,7 +67,7 @@ namespace NBitcoin.SimpleVerificationServer
             var configBuilder = new ConfigurationBuilder()
                 //.SetBasePath(env.ContentRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-            //.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
+                //.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
             //if (env.IsDevelopment())
             //{
             //    // For more details on using the user secret store see http://go.microsoft.com/fwlink/?LinkID=532709
@@ -80,7 +82,6 @@ namespace NBitcoin.SimpleVerificationServer
 
         private ILoggerFactory BuildLoggerFactory(IConfigurationRoot configuration)
         {
-            //Console.WriteLine("CONSOLE: Creating logger factory");
             var loggerFactory = new LoggerFactory();
             loggerFactory.AddConsole(configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
@@ -103,7 +104,6 @@ namespace NBitcoin.SimpleVerificationServer
                 .UseLoggerFactory(loggerFactory)
                 .UseStartup<Startup>()
                 .ConfigureServices(configureServices);
-            //Console.WriteLine("CONSOLE: WebHostBuilder ready, about to Build");
             _logger.LogDebug("WebHostBuilder ready, about to Build");
             var webHost = webHostBuilder.Build();
             return webHost;
@@ -111,10 +111,7 @@ namespace NBitcoin.SimpleVerificationServer
 
         public void ConfigureServices(IServiceCollection services)
         {
-            //Console.WriteLine("CONSOLE: Builder configure services");
             _logger.LogDebug("Shell configure services");
-
-            // Register our non-web services
             services.AddSingleton<Node>();
             services.Configure<NodeSettings>(Configuration.GetSection("Node"));
             return;
